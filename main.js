@@ -84,19 +84,20 @@ function menu_build() {
 					type: "separator"
 				},
 				{
-					label: "Cut",
-					accelerator: "CommandOrControl+X",
-					role: "cut",
-				},
-				{
-					label: "Copy",
-					accelerator: "CommandOrControl+C",
-					role: "copy",
-				},
-				{
-					label: "Paste",
-					accelerator: "CommandOrControl+V",
-					role: "paste",
+					label: "Load match",
+					accelerator: "CommandOrControl+O",
+					click: () => {
+						let files = open_dialog({
+							properties: ["openFile"]
+						});
+						if (Array.isArray(files) && files.length > 0) {
+							let file = files[0];
+							win.webContents.send("call", {
+								fn: "load_match",
+								args: [file]
+							});
+						}
+					}
 				},
 				{
 					type: "separator"

@@ -1,5 +1,6 @@
 "use strict";
 
+const LoadMatchConfig = require("./config").LoadMatchConfig;
 const NewEngine = require("./engine").NewEngine;
 const NewRoot = require("./node").NewRoot;
 const Point = require("./point").Point;
@@ -14,9 +15,9 @@ function NewHub() {
 
 	hub.receive = function(engine_colour, s) {
 
-		console.log(`${engine_colour} < ${s}`);
-
 		if (s.startsWith("bestmove")) {
+
+			console.log(`${engine_colour} < ${s}`);
 
 			if (this.node.board.active !== engine_colour) {
 				this.forfeit(engine_colour, "bestmove out of turn");
@@ -36,7 +37,7 @@ function NewHub() {
 		}
 	};
 
-	hub.run_game = function() {
+	hub.start_game = function() {
 
 		this.engine_one.shutdown();
 		this.engine_two.shutdown();
@@ -44,16 +45,18 @@ function NewHub() {
 		this.engine_one = NewEngine();
 		this.engine_two = NewEngine();
 
+		let [engine_one_config, engine_two_config] = this.choose_engines();
+
 		this.engine_one.setup(
-			"C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
-			[],
+			engine_one_config.path,
+			engine_one_config.args,
 			this.receive.bind(this, "w"),
 			() => {},
 		);
 
 		this.engine_two.setup(
-			"C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
-			[],
+			engine_two_config.path,
+			engine_two_config.args,
 			this.receive.bind(this, "b"),
 			() => {},
 		);
@@ -71,6 +74,14 @@ function NewHub() {
 		this.getmove();
 	};
 
+	hub.choose_engines = function() {
+		if (this.config.results.length % 2 === 0) {
+			return [this.config.engines[0], this.config.engines[1]];
+		} else {
+			return [this.config.engines[1], this.config.engines[0]];
+		}
+	};
+
 	hub.getmove = function() {
 
 		let engine = this.node.board.active === "w" ? this.engine_one : this.engine_two;
@@ -78,9 +89,9 @@ function NewHub() {
 		let root_fen = this.node.get_root().board.fen(false);
 		let setup = `fen ${root_fen}`;
 
-		console.log(engine.send(`position ${setup} moves ${this.node.history().join(" ")}`));
-		console.log(engine.send("isready"));
-		console.log(engine.send("go nodes 100000"));
+		engine.send(`position ${setup} moves ${this.node.history().join(" ")}`);
+		engine.send("isready");
+		engine.send("go nodes 100000");
 	};
 
 	hub.move = function(s) {							// Returns false on illegal.
@@ -121,8 +132,6 @@ function NewHub() {
 
 		let board = this.node.board;
 
-		console.log(this.node.token());
-
 		let result = this.adjudicate();
 
 		if (result) {
@@ -161,8 +170,16 @@ function NewHub() {
 		return null;
 	};
 
-	hub.startup = function() {
-		this.run_game();
+	hub.load_match = function(filename) {
+
+		try {
+			this.config = LoadMatchConfig(filename)
+		} catch (err) {
+			alert(err);
+			return;
+		}
+
+		this.start_game();
 	};
 
 	return hub;
