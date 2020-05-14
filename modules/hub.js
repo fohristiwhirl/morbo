@@ -1,7 +1,8 @@
 "use strict";
 
 const {LoadMatchConfig, SaveMatchConfig} = require("./config");
-const {DrawBoard} = require("./draw");
+const {DrawBoard} = require("./draw_board");
+const {DrawInfobox} = require("./draw_infobox");
 const {ipcRenderer} = require("electron");
 const {NewEngine} = require("./engine");
 const {NewRoot} = require("./node");
@@ -22,14 +23,14 @@ function NewHub() {
 	hub.black_id = null;
 	hub.white_config = null;
 	hub.black_config = null;
-	hub.game_running = false;
+	hub.running = false;
 
 	hub.config = null;
 	hub.config_file = null;
 
 	hub.start_game = function() {
 
-		if (this.game_running || !this.config) {
+		if (this.running || !this.config) {
 			return;
 		}
 
@@ -38,7 +39,7 @@ function NewHub() {
 		[this.white_id, this.black_id] = this.choose_engines();
 		this.white_config = this.config.engines[this.white_id];
 		this.black_config = this.config.engines[this.black_id];
-		this.game_running = true;
+		this.running = true;
 
 		this.engine_w.setup(
 			this.white_config.path,
@@ -73,6 +74,7 @@ function NewHub() {
 
 		this.node = NewRoot();
 		this.draw_board();
+		this.draw_infobox();
 
 		setTimeout(() => {
 			ipcRenderer.send("set_title", `${this.engine_w.name} - ${this.engine_b.name}`);
@@ -207,7 +209,7 @@ function NewHub() {
 
 	hub.finish_game = function(result) {		// TODO - accept a comment parameter
 
-		if (!this.game_running) {		// Required because the user can call this at odd times.
+		if (!this.running) {		// Required because the user can call this at odd times.
 			return;
 		}
 
@@ -225,15 +227,22 @@ function NewHub() {
 			this.black_config.results += `+${this.white_id}`;
 		}
 
-		console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
-		console.log(this.nice_history().join(" "));
-
 		SaveMatchConfig(this.config_file, this.config);
 
 		let root = this.node.get_root();
 
-		root.tags.White = this.engine_w.name;
-		root.tags.Black = this.engine_b.name;
+		if (this.white_config.name) {
+			root.tags.White = this.white_config.name;
+		} else {
+			root.tags.White = this.engine_w.name;
+		}
+
+		if (this.black_config.name) {
+			root.tags.Black = this.black_config.name;
+		} else {
+			root.tags.Black = this.engine_b.name;
+		}
+		
 		root.tags.Result = result;
 
 		if (this.config.outpgn) {
@@ -254,7 +263,9 @@ function NewHub() {
 		this.black_id = null;
 		this.white_config = null;
 		this.black_config = null;
-		this.game_running = false;
+		this.running = false;
+
+		this.draw_infobox();
 	};
 
 	hub.load_match = function(filename) {
@@ -274,6 +285,10 @@ function NewHub() {
 
 	hub.draw_board = function() {
 		DrawBoard(this.node.board);
+	};
+
+	hub.draw_infobox = function() {
+		DrawInfobox(this.config, this.config_file, this.running);
 	};
 
 	hub.nice_history = function() {
