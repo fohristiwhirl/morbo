@@ -5,7 +5,8 @@
 			"args": [],
 			"options": {
 				"Contempt": 0,
-				"Threads": 4
+				"Threads": 4,
+				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
 			}
 		},
 		{
@@ -16,9 +17,11 @@
 				"Temperature": 0.5,
 				"TempDecayMoves": 14,
 				"Backend": "cudnn-auto",
-				"MoveOverheadMs": 0
+				"MoveOverheadMs": 0,
+				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
 			}
 		}
 	],
-	"movetime": 250
+	"movetime": 250,
+	"outpgn": "example.pgn"
 }
