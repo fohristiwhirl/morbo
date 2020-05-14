@@ -7,8 +7,8 @@
 //		so we don't. We either convert old-format moves to new-format as soon as we receive
 //		them, or we treat them as illegal.
 
-const Point = require("./point");
 const utils = require("./utils");
+const Point = require("./point");
 
 const position_prototype = {
 
@@ -1343,3 +1343,5 @@ function NewPosition(state = null, active = "w", castling = "", enpassant = null
 
 	return p;
 }
+
+module.exports = NewPosition;

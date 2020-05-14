@@ -37,5 +37,4 @@ function Point(a, b) {
 	return ret;
 }
 
-modules.exports = Point;
-
+module.exports = Point;
