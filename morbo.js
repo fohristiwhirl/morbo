@@ -119,7 +119,10 @@ hub.progress_game = function() {
 
 	console.log(this.node.token());
 
-	if (this.adjudicate()) {
+	let result = this.adjudicate();
+
+	if (result) {
+		console.log(`${this.engine_one.name} ${result} ${this.engine_two.name}`);
 		console.log(this.nice_history().join(" "));
 		// Start next game
 		return;
@@ -136,22 +139,22 @@ hub.adjudicate = function() {
 
 	if (board.no_moves()) {
 		if (board.king_in_check()) {
-			return true;
+			return board.active === "w" ? "0-1" : "1-0";
 		} else {
-			return true;
+			return "1/2-1/2";
 		}
 	}
 	if (board.insufficient_material()) {
-		return true;
+		return "1/2-1/2";
 	}
 	if (board.halfmove >= 100) {
-		return true;
+		return "1/2-1/2";
 	}
 	if (this.node.is_triple_rep()) {
-		return true;
+		return "1/2-1/2";
 	}
 
-	return false;
+	return null;
 }
 
 
