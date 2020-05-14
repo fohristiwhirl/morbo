@@ -6,6 +6,7 @@ const LoadMatchConfig = require("./config").LoadMatchConfig;
 const NewEngine = require("./engine").NewEngine;
 const NewRoot = require("./node").NewRoot;
 const Point = require("./point").Point;
+const SaveMatchConfig = require("./config").SaveMatchConfig;
 
 function NewHub() {
 
@@ -22,6 +23,9 @@ function NewHub() {
 	hub.white_config = null;
 	hub.black_config = null;
 	hub.game_running = false;
+
+	hub.config = null;
+	hub.config_file = null;
 
 	hub.start_game = function() {
 
@@ -198,8 +202,24 @@ function NewHub() {
 			return;
 		}
 
+		if (this.white_config.results !== "") this.white_config.results += " ";
+		if (this.black_config.results !== "") this.black_config.results += " ";
+
+		if (result === "1-0") {
+			this.white_config.results += `+${this.black_id}`;
+			this.black_config.results += `-${this.white_id}`;
+		} else if (result === "1/2-1/2") {
+			this.white_config.results += `=${this.black_id}`;
+			this.black_config.results += `=${this.white_id}`;
+		} else if (result === "0-1") {
+			this.white_config.results += `-${this.black_id}`;
+			this.black_config.results += `+${this.white_id}`;
+		}
+
 		console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
 		console.log(this.nice_history().join(" "));
+
+		SaveMatchConfig(this.config_file, this.config);
 
 		this.terminate();
 
@@ -221,11 +241,13 @@ function NewHub() {
 	hub.load_match = function(filename) {
 
 		try {
-			this.config = LoadMatchConfig(filename)
+			this.config = LoadMatchConfig(filename);
 		} catch (err) {
 			alert(err);
 			return;
 		}
+
+		this.config_file = filename;
 
 		this.terminate();
 		this.start_game();

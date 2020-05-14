@@ -24,8 +24,8 @@ function LoadMatchConfig(filename) {
 			e.options = {};
 		}
 
-		if (Array.isArray(e.results) === false) {
-			e.results = [];
+		if (typeof e.results !== "string") {
+			e.results = "";
 		}
 	}
 
@@ -36,6 +36,13 @@ function LoadMatchConfig(filename) {
 	return config;
 }
 
-
+function SaveMatchConfig(filename, config) {
+	try {
+		fs.writeFileSync(filename, JSON.stringify(config, null, "\t"));
+	} catch (err) {
+		console.log(err.toString());
+	}
+}
 
 exports.LoadMatchConfig = LoadMatchConfig;
+exports.SaveMatchConfig = SaveMatchConfig;
