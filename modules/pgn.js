@@ -290,6 +290,7 @@ function AppendPGN(filename, node) {
 	try {
 		let stream = fs.createWriteStream(filename, {flags: "a"});
 		stream.write(s);
+		stream.end();
 	} catch (err) {
 		alert(err);
 	}
