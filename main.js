@@ -117,7 +117,7 @@ function menu_build() {
 					type: "separator"
 				},
 				{
-					label: "Declare White wins",
+					label: "Declare White wins this game",
 					click: () => {
 						win.webContents.send("call", {
 							fn: "finish_game",
@@ -126,7 +126,7 @@ function menu_build() {
 					}
 				},
 				{
-					label: "Declare Black wins",
+					label: "Declare Black wins this game",
 					click: () => {
 						win.webContents.send("call", {
 							fn: "finish_game",
