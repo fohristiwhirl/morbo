@@ -88,6 +88,16 @@ function menu_build() {
 					type: "separator"
 				},
 				{
+					role: "quit",
+					label: "Quit",
+					accelerator: "CommandOrControl+Q"
+				},
+			]
+		},
+		{
+			label: "Match",
+			submenu: [
+				{
 					label: "Load match",
 					accelerator: "CommandOrControl+O",
 					click: () => {
@@ -107,10 +117,32 @@ function menu_build() {
 					type: "separator"
 				},
 				{
-					role: "quit",
-					label: "Quit",
-					accelerator: "CommandOrControl+Q"
+					label: "Declare White wins",
+					click: () => {
+						win.webContents.send("call", {
+							fn: "finish_game",
+							args: ["1-0"]
+						});
+					}
 				},
+				{
+					label: "Declare Black wins",
+					click: () => {
+						win.webContents.send("call", {
+							fn: "finish_game",
+							args: ["0-1"]
+						});
+					}
+				},
+				{
+					label: "Declare draw",
+					click: () => {
+						win.webContents.send("call", {
+							fn: "finish_game",
+							args: ["1/2-1/2"]
+						});
+					}
+				}
 			]
 		}
 	];

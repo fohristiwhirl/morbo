@@ -13,17 +13,26 @@ function NewHub() {
 
 	hub.node = NewRoot();
 
+	// These things should all be false/null, or all be valid at once...
+
+	hub.engine_w = null;
+	hub.engine_b = null;
+	hub.white_id = null;
+	hub.black_id = null;
+	hub.white_config = null;
+	hub.black_config = null;
+	hub.game_running = false;
+
 	hub.start_game = function() {
 
-		this.terminate();	// Possibly redundant, but harmless.
+		this.terminate();		// Defensive against future situations where start_game() might be called at odd times.
 
 		this.engine_w = NewEngine();
 		this.engine_b = NewEngine();
-
 		[this.white_id, this.black_id] = this.choose_engines();
-		
 		this.white_config = this.config.engines[this.white_id];
 		this.black_config = this.config.engines[this.black_id];
+		this.game_running = true;
 
 		this.engine_w.setup(
 			this.white_config.path,
@@ -72,10 +81,7 @@ function NewHub() {
 
 	hub.receive = function(engine_colour, engine_object, s) {
 
-		if ((engine_colour === "w" && engine_object !== this.engine_w) ||
-			(engine_colour === "b" && engine_object !== this.engine_b)) {
-
-			alert("Got data from wrong engine object! This should be impossible...");
+		if ((engine_colour === "w" && engine_object !== this.engine_w) || (engine_colour === "b" && engine_object !== this.engine_b)) {
 			engine_object.shutdown();
 			return;
 		}
@@ -98,6 +104,46 @@ function NewHub() {
 
 			this.progress_game();
 		}
+	};
+
+	hub.progress_game = function() {
+
+		let board = this.node.board;
+
+		let result = this.adjudicate();
+
+		if (result) {
+			this.finish_game(result);
+			return;
+		}
+
+		this.getmove();
+	};
+
+	hub.adjudicate = function() {
+
+		// TODO: update match stats etc.
+
+		let board = this.node.board;
+
+		if (board.no_moves()) {
+			if (board.king_in_check()) {
+				return board.active === "w" ? "0-1" : "1-0";
+			} else {
+				return "1/2-1/2";
+			}
+		}
+		if (board.insufficient_material()) {
+			return "1/2-1/2";
+		}
+		if (board.halfmove >= 100) {
+			return "1/2-1/2";
+		}
+		if (this.node.is_triple_rep()) {
+			return "1/2-1/2";
+		}
+
+		return null;
 	};
 
 	hub.getmove = function() {
@@ -138,31 +184,17 @@ function NewHub() {
 	};
 
 	hub.forfeit = function(engine_colour, reason) {
-		console.log(`Forfeit (${engine_colour}), ${reason}`);
+		alert(`Forfeit (${engine_colour}), ${reason}`);
 		result = engine_colour === "w" ? "0-1" : "1-0";
 		this.finish_game(result);
 		return;
 	};
 
-	hub.nice_history = function() {
-		return this.node.node_history().map(node => node.token()).slice(1);
-	};
+	hub.finish_game = function(result) {		// TODO - accept a comment parameter
 
-	hub.progress_game = function() {
-
-		let board = this.node.board;
-
-		let result = this.adjudicate();
-
-		if (result) {
-			this.finish_game(result);
+		if (!this.game_running) {		// Required because the user can call this at odd times.
 			return;
 		}
-
-		this.getmove();
-	};
-
-	hub.finish_game = function(result) {
 
 		console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
 		console.log(this.nice_history().join(" "));
@@ -181,32 +213,7 @@ function NewHub() {
 		this.black_id = null;
 		this.white_config = null;
 		this.black_config = null;
-	};
-
-	hub.adjudicate = function() {
-
-		// TODO: update match stats etc.
-
-		let board = this.node.board;
-
-		if (board.no_moves()) {
-			if (board.king_in_check()) {
-				return board.active === "w" ? "0-1" : "1-0";
-			} else {
-				return "1/2-1/2";
-			}
-		}
-		if (board.insufficient_material()) {
-			return "1/2-1/2";
-		}
-		if (board.halfmove >= 100) {
-			return "1/2-1/2";
-		}
-		if (this.node.is_triple_rep()) {
-			return "1/2-1/2";
-		}
-
-		return null;
+		this.game_running = false;
 	};
 
 	hub.load_match = function(filename) {
@@ -218,11 +225,16 @@ function NewHub() {
 			return;
 		}
 
+		this.terminate();
 		this.start_game();
 	};
 
 	hub.draw_board = function() {
 		DrawBoard(this.node.board);
+	};
+
+	hub.nice_history = function() {
+		return this.node.node_history().map(node => node.token()).slice(1);
 	};
 
 	return hub;
