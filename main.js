@@ -142,6 +142,21 @@ function menu_build() {
 							args: ["1/2-1/2"]
 						});
 					}
+				},
+				{
+					type: "separator"
+				},
+				{
+					label: "Abort game",
+					click: () => {
+						win.webContents.send("call", "terminate");
+					}
+				},
+				{
+					label: "Resume match",
+					click: () => {
+						win.webContents.send("call", "start_game");
+					}
 				}
 			]
 		}

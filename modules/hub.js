@@ -25,7 +25,9 @@ function NewHub() {
 
 	hub.start_game = function() {
 
-		this.terminate();		// Defensive against future situations where start_game() might be called at odd times.
+		if (this.game_running || !this.config) {
+			return;
+		}
 
 		this.engine_w = NewEngine();
 		this.engine_b = NewEngine();
