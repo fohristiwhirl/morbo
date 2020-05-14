@@ -8,9 +8,11 @@
 				"Threads": 4,
 				"Hash": 4096,
 				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
-			}
+			},
+			"results": "=1 =1"
 		},
 		{
+			"name": "Lc0 63409",
 			"path": "C:\\Programs (self-installed)\\lc0-cudnn git\\lc0.exe",
 			"args": [],
 			"options": {
@@ -20,9 +22,10 @@
 				"Backend": "cudnn-auto",
 				"MoveOverheadMs": 0,
 				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
-			}
+			},
+			"results": "=0 =0"
 		}
 	],
 	"movetime": 250,
-	"outpgn": "example.pgn"
+	"outpgn": "sf_vs_lc0.pgn"
 }
