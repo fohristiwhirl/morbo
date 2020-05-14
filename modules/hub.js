@@ -1,6 +1,6 @@
 "use strict";
 
-const Engine = require("./engine");
+const NewEngine = require("./engine").NewEngine;
 const NewRoot = require("./node").NewRoot;
 const Point = require("./point").Point;
 
@@ -8,8 +8,8 @@ function NewHub() {
 
 	let hub = Object.create(null);
 
-	hub.engine_one = Engine();
-	hub.engine_two = Engine();
+	hub.engine_one = NewEngine();
+	hub.engine_two = NewEngine();
 	hub.node = NewRoot();
 
 	hub.receive = function(engine_colour, s) {
@@ -41,8 +41,8 @@ function NewHub() {
 		this.engine_one.shutdown();
 		this.engine_two.shutdown();
 
-		this.engine_one = Engine();
-		this.engine_two = Engine();
+		this.engine_one = NewEngine();
+		this.engine_two = NewEngine();
 
 		this.engine_one.setup(
 			"C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
@@ -170,4 +170,4 @@ function NewHub() {
 
 
 
-module.exports = NewHub();		// i.e. an actual hub object, not the function
+exports.NewHub = NewHub;

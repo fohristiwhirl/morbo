@@ -1,8 +1,8 @@
 "use strict";
 
-const utils = require("./utils");
 const NewPosition = require("./position").NewPosition;
 const Point = require("./point").Point;
+const utils = require("./utils");
 
 function LoadFEN(fen) {
 
@@ -108,15 +108,15 @@ function LoadFEN(fen) {
 
 	// Some hard things. Do these in the right order!
 
-	ret.castling = CastlingRights(ret, tokens[2]);
-	ret.enpassant = EnPassantSquare(ret, tokens[3]);	// Requires ret.active to be correct.
-	ret.normalchess = IsNormalChessPosition(ret);		// Requires ret.castling to be correct.
+	ret.castling = castling_rights(ret, tokens[2]);
+	ret.enpassant = en_passant_square(ret, tokens[3]);	// Requires ret.active to be correct.
+	ret.normalchess = is_normal_chess_position(ret);		// Requires ret.castling to be correct.
 
 	return ret;
 }
 
 
-function CastlingRights(board, s) {						// s is the castling string from a FEN
+function castling_rights(board, s) {						// s is the castling string from a FEN
 
 	let dict = Object.create(null);						// Will contain keys like "A" to "H" and "a" to "h"
 
@@ -207,7 +207,7 @@ function CastlingRights(board, s) {						// s is the castling string from a FEN
 }
 
 
-function EnPassantSquare(board, s) {	// board.active must be correct. s is the en-passant string from a FEN.
+function en_passant_square(board, s) {	// board.active must be correct. s is the en-passant string from a FEN.
 
 	// Suffers from the same subtleties as the enpassant setter in position.move(), see there for comments.
 
@@ -251,7 +251,7 @@ function EnPassantSquare(board, s) {	// board.active must be correct. s is the e
 }
 
 
-function IsNormalChessPosition(board) {
+function is_normal_chess_position(board) {
 
 	for (let ch of "bcdefgBCDEFG") {
 

@@ -41,6 +41,4 @@ function generate_movegen_sliders() {
 	return ret;
 }
 
-let sliders = generate_movegen_sliders();
-
-exports.sliders = sliders;
+module.exports = generate_movegen_sliders();

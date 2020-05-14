@@ -1,7 +1,7 @@
 "use strict";
 
-const utils = require("./utils");
 const LoadFEN = require("./fen").LoadFEN;
+const utils = require("./utils");
 
 let next_node_id = 1;
 

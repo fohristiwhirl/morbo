@@ -157,4 +157,4 @@ function NewEngine() {
 	return eng;
 }
 
-module.exports = NewEngine;
+exports.NewEngine = NewEngine;
