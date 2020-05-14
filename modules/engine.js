@@ -9,7 +9,7 @@ function NewEngine() {
 	let eng = Object.create(null);
 
 	eng.exe = null;
-	eng.name = "??";
+	eng.name = "??";			// Will soon be replaced by either the filename or the UCI info
 	eng.readyok_required = 0;
 	eng.bestmove_required = 0;
 	eng.scanner = null;
@@ -113,7 +113,7 @@ function NewEngine() {
 			}
 
 			if (line.startsWith("id name")) {
-				let tokens = line.split(" ").slice(2);
+				let tokens = line.split(" ").filter(z => z !== "").slice(2);
 				this.name = tokens.join(" ");
 			}
 

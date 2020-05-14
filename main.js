@@ -50,6 +50,10 @@ function startup() {
 		win.focus();
 	});
 
+	electron.ipcMain.on("set_title", (event, msg) => {
+		win.setTitle(msg);
+	});
+
 	electron.app.on("window-all-closed", () => {
 		electron.app.quit();
 	});

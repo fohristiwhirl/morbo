@@ -1,6 +1,7 @@
 "use strict";
 
 const DrawBoard = require("./draw").DrawBoard;
+const ipcRenderer = require("electron").ipcRenderer;
 const LoadMatchConfig = require("./config").LoadMatchConfig;
 const NewEngine = require("./engine").NewEngine;
 const NewRoot = require("./node").NewRoot;
@@ -13,6 +14,8 @@ function NewHub() {
 	hub.node = NewRoot();
 
 	hub.start_game = function() {
+
+		this.terminate();	// Possibly redundant, but harmless.
 
 		this.engine_w = NewEngine();
 		this.engine_b = NewEngine();
@@ -56,6 +59,10 @@ function NewHub() {
 		this.node = NewRoot();
 		this.draw_board();
 
+		setTimeout(() => {
+			ipcRenderer.send("set_title", `${this.engine_w.name} - ${this.engine_b.name}`);
+		}, 1000);
+
 		this.getmove();
 	};
 
@@ -65,21 +72,15 @@ function NewHub() {
 
 	hub.receive = function(engine_colour, engine_object, s) {
 
-		if (engine_colour === "w" && engine_object !== this.engine_w) {
-			alert("Got data from wrong engine object! This should be impossible...");
-			engine_object.shutdown();
-			return;
-		}
+		if ((engine_colour === "w" && engine_object !== this.engine_w) ||
+			(engine_colour === "b" && engine_object !== this.engine_b)) {
 
-		if (engine_colour === "b" && engine_object !== this.engine_b) {
 			alert("Got data from wrong engine object! This should be impossible...");
 			engine_object.shutdown();
 			return;
 		}
 
 		if (s.startsWith("bestmove")) {
-
-			console.log(`${engine_colour} < ${s}`);
 
 			if (this.node.board.active !== engine_colour) {
 				this.forfeit(engine_colour, "bestmove out of turn");
@@ -139,7 +140,7 @@ function NewHub() {
 	hub.forfeit = function(engine_colour, reason) {
 		console.log(`Forfeit (${engine_colour}), ${reason}`);
 		result = engine_colour === "w" ? "0-1" : "1-0";
-		hub.finish_game(result);
+		this.finish_game(result);
 		return;
 	};
 
@@ -167,18 +168,19 @@ function NewHub() {
 		console.log(this.nice_history().join(" "));
 
 		this.terminate();
-		this.start_game();
+
+		setTimeout(this.start_game.bind(this), 2000);
 	};
 
 	hub.terminate = function() {
 		if (this.engine_w) this.engine_w.shutdown();
 		if (this.engine_b) this.engine_b.shutdown();
-		hub.engine_w = null;
-		hub.engine_b = null;
-		hub.white_id = null;
-		hub.black_id = null;
-		hub.white_config = null;
-		hub.black_config = null;
+		this.engine_w = null;
+		this.engine_b = null;
+		this.white_id = null;
+		this.black_id = null;
+		this.white_config = null;
+		this.black_config = null;
 	};
 
 	hub.adjudicate = function() {
