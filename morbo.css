@@ -1,0 +1,15 @@
+#boardsquares {
+	border-collapse: collapse;
+	margin-bottom: 1em;
+	margin-right: 1em;
+	table-layout: fixed;
+	z-index: 1;
+}
+
+#boardpieces {
+	border-collapse: collapse;
+	pointer-events: auto;
+	position: fixed;
+	table-layout: fixed;
+	z-index: 3;
+}

@@ -1,5 +1,6 @@
 "use strict";
 
+const DrawBoard = require("./draw").DrawBoard;
 const LoadMatchConfig = require("./config").LoadMatchConfig;
 const NewEngine = require("./engine").NewEngine;
 const NewRoot = require("./node").NewRoot;
@@ -9,8 +10,8 @@ function NewHub() {
 
 	let hub = Object.create(null);
 
-	hub.engine_one = NewEngine();
-	hub.engine_two = NewEngine();
+	hub.engine_w = NewEngine();
+	hub.engine_b = NewEngine();
 	hub.node = NewRoot();
 
 	hub.receive = function(engine_colour, s) {
@@ -39,59 +40,55 @@ function NewHub() {
 
 	hub.start_game = function() {
 
-		this.engine_one.shutdown();
-		this.engine_two.shutdown();
+		this.engine_w.shutdown();
+		this.engine_b.shutdown();
 
-		this.engine_one = NewEngine();
-		this.engine_two = NewEngine();
+		this.engine_w = NewEngine();
+		this.engine_b = NewEngine();
 
-		let [engine_one_config, engine_two_config] = this.choose_engines();
+		let [white_id, black_id] = this.choose_engines();
 
-		this.engine_one.setup(
-			engine_one_config.path,
-			engine_one_config.args,
+		this.engine_w.setup(
+			this.config.engines[white_id].path,
+			this.config.engines[white_id].args,
 			this.receive.bind(this, "w"),
 			() => {},
 		);
 
-		this.engine_two.setup(
-			engine_two_config.path,
-			engine_two_config.args,
+		this.engine_b.setup(
+			this.config.engines[black_id].path,
+			this.config.engines[black_id].args,
 			this.receive.bind(this, "b"),
 			() => {},
 		);
 
-		this.engine_one.send("uci");
-		this.engine_two.send("uci");
+		this.engine_w.send("uci");
+		this.engine_b.send("uci");
 
-		this.engine_one.setoption("UCI_Chess960", true);
-		this.engine_two.setoption("UCI_Chess960", true);
+		this.engine_w.setoption("UCI_Chess960", true);
+		this.engine_b.setoption("UCI_Chess960", true);
 
-		this.engine_one.send("ucinewgame");
-		this.engine_two.send("ucinewgame");
+		this.engine_w.send("ucinewgame");
+		this.engine_b.send("ucinewgame");
 
 		this.node = NewRoot();
 		this.getmove();
 	};
 
 	hub.choose_engines = function() {
-		if (this.config.results.length % 2 === 0) {
-			return [this.config.engines[0], this.config.engines[1]];
-		} else {
-			return [this.config.engines[1], this.config.engines[0]];
-		}
+		return [0, 1];
 	};
 
 	hub.getmove = function() {
 
-		let engine = this.node.board.active === "w" ? this.engine_one : this.engine_two;
+		let engine = this.node.board.active === "w" ? this.engine_w : this.engine_b;
 
 		let root_fen = this.node.get_root().board.fen(false);
 		let setup = `fen ${root_fen}`;
 
 		engine.send(`position ${setup} moves ${this.node.history().join(" ")}`);
 		engine.send("isready");
-		engine.send("go nodes 100000");
+		engine.send(`go movetime ${this.config.movetime}`);
 	};
 
 	hub.move = function(s) {							// Returns false on illegal.
@@ -135,7 +132,7 @@ function NewHub() {
 		let result = this.adjudicate();
 
 		if (result) {
-			console.log(`${this.engine_one.name} ${result} ${this.engine_two.name}`);
+			console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
 			console.log(this.nice_history().join(" "));
 			// Start next game
 			return;
@@ -180,6 +177,10 @@ function NewHub() {
 		}
 
 		this.start_game();
+	};
+
+	hub.draw = function() {
+		DrawBoard();
 	};
 
 	return hub;

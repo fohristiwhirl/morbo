@@ -3,7 +3,37 @@
 const fs = require("fs");
 
 function LoadMatchConfig(filename) {
-	return JSON.parse(fs.readFileSync(filename, "utf8"));		// Can throw
+
+	let config = JSON.parse(fs.readFileSync(filename, "utf8"));		// Can throw
+
+	if (Array.isArray(config.engines === false)) {
+		config.engines = [];
+	}
+
+	for (let e of config.engines) {
+
+		if (typeof e.path !== "string") {
+			throw "Bad path in engine options";			// Unrecoverable
+		}
+
+		if (Array.isArray(e.args) === false) {
+			e.args = [];
+		}
+
+		if (typeof e.options !== "object") {
+			e.options = {};
+		}
+
+		if (Array.isArray(e.results) === false) {
+			e.results = [];
+		}
+	}
+
+	if (typeof config.movetime !== "number") {
+		config.movetime = 3000;
+	}
+
+	return config;
 }
 
 
