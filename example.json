@@ -6,6 +6,7 @@
 			"options": {
 				"Contempt": 0,
 				"Threads": 4,
+				"Hash": 4096,
 				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
 			}
 		},
