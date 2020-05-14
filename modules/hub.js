@@ -10,8 +10,8 @@ function NewHub() {
 
 	let hub = Object.create(null);
 
-	hub.engine_w = NewEngine();
-	hub.engine_b = NewEngine();
+	hub.engine_w = null;		// We'll say that engine_w and engine_b
+	hub.engine_b = null;		// always point to real engine objects.
 	hub.white_id = null;
 	hub.black_id = null;
 	hub.white_config = null;
@@ -19,39 +19,12 @@ function NewHub() {
 
 	hub.node = NewRoot();
 
-	hub.receive = function(engine_colour, s) {
-
-		if (s.startsWith("bestmove")) {
-
-			console.log(`${engine_colour} < ${s}`);
-
-			if (this.node.board.active !== engine_colour) {
-				this.forfeit(engine_colour, "bestmove out of turn");
-				return;
-			}
-
-			let tokens = s.split(" ").filter(z => s !== "");
-
-			let ok = this.move(tokens[1]);
-
-			if (!ok) {
-				this.forfeit(engine_colour, "illegal: " + s);
-				return;
-			}
-
-			this.progress_game();
-		}
-	};
-
 	hub.start_game = function() {
-
-		this.engine_w.shutdown();
-		this.engine_b.shutdown();
-
-		[this.white_id, this.black_id] = this.choose_engines();
 
 		this.engine_w = NewEngine();
 		this.engine_b = NewEngine();
+
+		[this.white_id, this.black_id] = this.choose_engines();
 		
 		this.white_config = this.config.engines[this.white_id];
 		this.black_config = this.config.engines[this.black_id];
@@ -59,14 +32,14 @@ function NewHub() {
 		this.engine_w.setup(
 			this.white_config.path,
 			this.white_config.args,
-			this.receive.bind(this, "w"),
+			this.receive.bind(this, "w", this.engine_w),
 			() => {},
 		);
 
 		this.engine_b.setup(
 			this.black_config.path,
 			this.black_config.args,
-			this.receive.bind(this, "b"),
+			this.receive.bind(this, "b", this.engine_b),
 			() => {},
 		);
 
@@ -88,13 +61,49 @@ function NewHub() {
 		this.engine_b.send("ucinewgame");
 
 		this.node = NewRoot();
-		this.draw();
+		this.draw_board();
 
 		this.getmove();
 	};
 
 	hub.choose_engines = function() {
 		return [0, 1];
+	};
+
+	hub.receive = function(engine_colour, engine_object, s) {
+
+		if (engine_colour === "w" && engine_object !== this.engine_w) {
+			alert("Got data from wrong engine object! This should be impossible...");
+			engine_object.shutdown();
+			return;
+		}
+
+		if (engine_colour === "b" && engine_object !== this.engine_b) {
+			alert("Got data from wrong engine object! This should be impossible...");
+			engine_object.shutdown();
+			return;
+		}
+
+		if (s.startsWith("bestmove")) {
+
+			console.log(`${engine_colour} < ${s}`);
+
+			if (this.node.board.active !== engine_colour) {
+				this.forfeit(engine_colour, "bestmove out of turn");
+				return;
+			}
+
+			let tokens = s.split(" ").filter(z => s !== "");
+
+			let ok = this.move(tokens[1]);
+
+			if (!ok) {
+				this.forfeit(engine_colour, "illegal: " + s);
+				return;
+			}
+
+			this.progress_game();
+		}
 	};
 
 	hub.getmove = function() {
@@ -130,13 +139,14 @@ function NewHub() {
 		}
 
 		this.node = this.node.make_move(s);
-		this.draw();
+		this.draw_board();
 		return true;
 	};
 
 	hub.forfeit = function(engine_colour, reason) {
 		console.log(`Forfeit (${engine_colour}), ${reason}`);
-		// Start next game
+		result = engine_colour === "w" ? "0-1" : "1-0";
+		hub.finish_game(result);
 		return;
 	};
 
@@ -151,13 +161,31 @@ function NewHub() {
 		let result = this.adjudicate();
 
 		if (result) {
-			console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
-			console.log(this.nice_history().join(" "));
-			// Start next game
+			this.finish_game(result);
 			return;
 		}
 
 		this.getmove();
+	};
+
+	hub.finish_game = function(result) {
+
+		console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
+		console.log(this.nice_history().join(" "));
+
+		this.engine_w.shutdown();
+		this.engine_b.shutdown();
+		this.engine_w = null;
+		this.engine_b = null;
+
+		this.start_game();
+	};
+
+	hub.abort_game = function() {
+		if (this.engine_w) this.engine_w.shutdown();
+		if (this.engine_b) this.engine_b.shutdown();
+		this.engine_w = null;
+		this.engine_b = null;
 	};
 
 	hub.adjudicate = function() {
@@ -198,7 +226,7 @@ function NewHub() {
 		this.start_game();
 	};
 
-	hub.draw = function() {
+	hub.draw_board = function() {
 		DrawBoard(this.node.board);
 	};
 
