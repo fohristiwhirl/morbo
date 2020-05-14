@@ -10,13 +10,6 @@ function NewHub() {
 
 	let hub = Object.create(null);
 
-	hub.engine_w = null;		// We'll say that engine_w and engine_b
-	hub.engine_b = null;		// always point to real engine objects.
-	hub.white_id = null;
-	hub.black_id = null;
-	hub.white_config = null;
-	hub.black_config = null;
-
 	hub.node = NewRoot();
 
 	hub.start_game = function() {
@@ -173,19 +166,19 @@ function NewHub() {
 		console.log(`${this.engine_w.name} ${result} ${this.engine_b.name}`);
 		console.log(this.nice_history().join(" "));
 
-		this.engine_w.shutdown();
-		this.engine_b.shutdown();
-		this.engine_w = null;
-		this.engine_b = null;
-
+		this.terminate();
 		this.start_game();
 	};
 
-	hub.abort_game = function() {
+	hub.terminate = function() {
 		if (this.engine_w) this.engine_w.shutdown();
 		if (this.engine_b) this.engine_b.shutdown();
-		this.engine_w = null;
-		this.engine_b = null;
+		hub.engine_w = null;
+		hub.engine_b = null;
+		hub.white_id = null;
+		hub.black_id = null;
+		hub.white_config = null;
+		hub.black_config = null;
 	};
 
 	hub.adjudicate = function() {
