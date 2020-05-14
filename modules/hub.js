@@ -12,10 +12,12 @@ function NewHub() {
 
 	hub.engine_w = NewEngine();
 	hub.engine_b = NewEngine();
-	hub.node = NewRoot();
-
 	hub.white_id = null;
 	hub.black_id = null;
+	hub.white_config = null;
+	hub.black_config = null;
+
+	hub.node = NewRoot();
 
 	hub.receive = function(engine_colour, s) {
 
@@ -46,19 +48,24 @@ function NewHub() {
 		this.engine_w.shutdown();
 		this.engine_b.shutdown();
 
-		[this.engine_w, this.engine_b] = [NewEngine(), NewEngine()];
 		[this.white_id, this.black_id] = this.choose_engines();
 
+		this.engine_w = NewEngine();
+		this.engine_b = NewEngine();
+		
+		this.white_config = this.config.engines[this.white_id];
+		this.black_config = this.config.engines[this.black_id];
+
 		this.engine_w.setup(
-			this.config.engines[this.white_id].path,
-			this.config.engines[this.white_id].args,
+			this.white_config.path,
+			this.white_config.args,
 			this.receive.bind(this, "w"),
 			() => {},
 		);
 
 		this.engine_b.setup(
-			this.config.engines[this.black_id].path,
-			this.config.engines[this.black_id].args,
+			this.black_config.path,
+			this.black_config.args,
 			this.receive.bind(this, "b"),
 			() => {},
 		);
@@ -69,11 +76,11 @@ function NewHub() {
 		this.engine_w.setoption("UCI_Chess960", true);
 		this.engine_b.setoption("UCI_Chess960", true);
 
-		for (let [key, value] of Object.entries(this.config.engines[this.white_id].options)) {
+		for (let [key, value] of Object.entries(this.white_config.options)) {
 			this.engine_w.setoption(key, value);
 		}
 
-		for (let [key, value] of Object.entries(this.config.engines[this.black_id].options)) {
+		for (let [key, value] of Object.entries(this.black_config.options)) {
 			this.engine_b.setoption(key, value);
 		}
 
