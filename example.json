@@ -1,0 +1,22 @@
+{
+	"engines": [
+		{
+			"path": "C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
+			"args": [],
+			"options": {
+				"Threads": 4
+			}
+		},
+		{
+			"path": "C:\\Programs (self-installed)\\lc0-cudnn git\\lc0.exe",
+			"args": [],
+			"options": {
+				"WeightsFile": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Lc0 Networks\\63409",
+				"Temperature": 0.5,
+				"TempDecayMoves": 14,
+				"Backend": "cudnn-auto"
+			}
+		}
+	],
+	"movetime": 500
+}
