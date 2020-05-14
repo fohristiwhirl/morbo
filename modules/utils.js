@@ -57,3 +57,20 @@ exports.DateString = function(dt) {
 	];
 	return parts.join(".");
 }
+
+exports.NumbersBetween = function(a, b) {
+
+	// Given integers a and b, return a list of integers between the two, inclusive.
+
+	let add = a < b ? 1 : -1;
+
+	let ret = [];
+
+	for (let x = a; x !== b; x += add) {
+		ret.push(x);
+	}
+
+	ret.push(b);
+
+	return ret;
+}

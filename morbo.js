@@ -35,6 +35,12 @@ hub.receive = function(engine_colour, s) {
 
 hub.run_game = function() {
 
+	this.engine_one.shutdown();
+	this.engine_two.shutdown();
+
+	this.engine_one = Engine();
+	this.engine_two = Engine();
+
 	this.engine_one.setup(
 		"C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
 		[],
@@ -43,14 +49,20 @@ hub.run_game = function() {
 	);
 
 	this.engine_two.setup(
-		"C:\\Programs (self-installed)\\Chess Engines\\ethereal.exe",
+		"C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
 		[],
 		this.receive.bind(this, "b"),
 		() => {},
 	);
 
+	this.engine_one.send("uci");
+	this.engine_two.send("uci");
+
 	this.engine_one.setoption("UCI_Chess960", true);
 	this.engine_two.setoption("UCI_Chess960", true);
+
+	this.engine_one.send("ucinewgame");
+	this.engine_two.send("ucinewgame");
 
 	this.node = NewRoot();
 	this.getmove();
@@ -65,7 +77,7 @@ hub.getmove = function() {
 
 	console.log(engine.send(`position ${setup} moves ${this.node.history().join(" ")}`));
 	console.log(engine.send("isready"));
-	console.log(engine.send("go nodes 1000000"));
+	console.log(engine.send("go nodes 100000"));
 };
 
 hub.move = function(s) {							// Returns false on illegal.
@@ -97,6 +109,10 @@ hub.forfeit = function(engine_colour, reason) {
 	return;		// TODO
 };
 
+hub.nice_history = function() {
+	return this.node.node_history().map(node => node.token()).slice(1);
+};
+
 hub.progress_game = function() {
 
 	let board = this.node.board;
@@ -104,7 +120,7 @@ hub.progress_game = function() {
 	console.log(this.node.token());
 
 	if (this.adjudicate()) {
-		console.log(this.node.nice_history().join(" "));
+		console.log(this.nice_history().join(" "));
 		// Start next game
 		return;
 	}

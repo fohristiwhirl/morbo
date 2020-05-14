@@ -423,8 +423,8 @@ const position_prototype = {
 			rook_target_x = 3;
 		}
 
-		let king_path = NumbersBetween(x1, king_target_x);
-		let rook_path = NumbersBetween(x2, rook_target_x);
+		let king_path = utils.NumbersBetween(x1, king_target_x);
+		let rook_path = utils.NumbersBetween(x2, rook_target_x);
 
 		// Check for blockers and checks...
 

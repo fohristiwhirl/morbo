@@ -94,19 +94,17 @@ const node_prototype = {
 		return ret;
 	},
 
-	nice_history: function() {
-
-		let history = this.history();
-
-		let board = this.get_root().board;
+	node_history: function() {
 
 		let ret = [];
+		let node = this;
 
-		for (let mv of history) {
-			ret.push(board.nice_string(mv));
-			board = board.move(mv);
+		while (node) {
+			ret.push(node);
+			node = node.parent;
 		}
 
+		ret.reverse();
 		return ret;
 	},
 
