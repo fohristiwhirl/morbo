@@ -4,6 +4,7 @@
 			"path": "C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
 			"args": [],
 			"options": {
+				"Contempt": 0,
 				"Threads": 4
 			}
 		},
