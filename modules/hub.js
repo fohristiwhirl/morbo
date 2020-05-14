@@ -14,6 +14,9 @@ function NewHub() {
 	hub.engine_b = NewEngine();
 	hub.node = NewRoot();
 
+	hub.white_id = null;
+	hub.black_id = null;
+
 	hub.receive = function(engine_colour, s) {
 
 		if (s.startsWith("bestmove")) {
@@ -43,21 +46,19 @@ function NewHub() {
 		this.engine_w.shutdown();
 		this.engine_b.shutdown();
 
-		this.engine_w = NewEngine();
-		this.engine_b = NewEngine();
-
-		let [white_id, black_id] = this.choose_engines();
+		[this.engine_w, this.engine_b] = [NewEngine(), NewEngine()];
+		[this.white_id, this.black_id] = this.choose_engines();
 
 		this.engine_w.setup(
-			this.config.engines[white_id].path,
-			this.config.engines[white_id].args,
+			this.config.engines[this.white_id].path,
+			this.config.engines[this.white_id].args,
 			this.receive.bind(this, "w"),
 			() => {},
 		);
 
 		this.engine_b.setup(
-			this.config.engines[black_id].path,
-			this.config.engines[black_id].args,
+			this.config.engines[this.black_id].path,
+			this.config.engines[this.black_id].args,
 			this.receive.bind(this, "b"),
 			() => {},
 		);
@@ -68,12 +69,20 @@ function NewHub() {
 		this.engine_w.setoption("UCI_Chess960", true);
 		this.engine_b.setoption("UCI_Chess960", true);
 
+		for (let [key, value] of Object.entries(this.config.engines[this.white_id].options)) {
+			this.engine_w.setoption(key, value);
+		}
+
+		for (let [key, value] of Object.entries(this.config.engines[this.black_id].options)) {
+			this.engine_b.setoption(key, value);
+		}
+
 		this.engine_w.send("ucinewgame");
 		this.engine_b.send("ucinewgame");
 
 		this.node = NewRoot();
 		this.draw();
-		
+
 		this.getmove();
 	};
 
