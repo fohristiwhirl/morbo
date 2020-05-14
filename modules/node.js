@@ -1,5 +1,8 @@
 "use strict";
 
+const utils = require("./utils");
+const LoadFEN = require("./fen").LoadFEN;
+
 let next_node_id = 1;
 
 function NewNode(parent, move, board) {		// move must be legal; board is only relevant for root nodes
@@ -37,7 +40,7 @@ function NewRoot(board) {					// Arg is a board (position) object, not a FEN
 	root.tags = Object.create(null);		// Only root gets these. Get overwritten by the PGN loader.
 	root.tags.Event = "Morbo Match";
 	root.tags.Site = "Earth";
-	root.tags.Date = DateString(new Date());
+	root.tags.Date = utils.DateString(new Date());
 	root.tags.Round = "1";
 	root.tags.White = "White";
 	root.tags.Black = "Black";
@@ -64,6 +67,47 @@ const node_prototype = {
 		this.children.push(new_node);
 
 		return new_node;
+	},
+
+	get_root: function() {
+
+		let node = this;
+
+		while (node.parent) {
+			node = node.parent;
+		}
+
+		return node;
+	},
+
+	history: function() {
+
+		let ret = [];
+		let node = this;
+
+		while (node.move) {
+			ret.push(node.move);
+			node = node.parent;
+		}
+
+		ret.reverse();
+		return ret;
+	},
+
+	nice_history: function() {
+
+		let history = this.history();
+
+		let board = this.get_root().board;
+
+		let ret = [];
+
+		for (let mv of history) {
+			ret.push(board.nice_string(mv));
+			board = board.move(mv);
+		}
+
+		return ret;
 	},
 
 	is_triple_rep: function() {

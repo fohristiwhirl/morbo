@@ -12,7 +12,7 @@ const utils = require("./utils");
 function Point(a, b) {
 
 	if (Point.xy_lookup === undefined) {
-		Point.xy_lookup = New2DArray(8, 8);
+		Point.xy_lookup = utils.New2DArray(8, 8);
 		for (let x = 0; x < 8; x++) {
 			for (let y = 0; y < 8; y++) {
 				let s = utils.S(x, y);
@@ -37,4 +37,4 @@ function Point(a, b) {
 	return ret;
 }
 
-module.exports = Point;
+exports.Point = Point;

@@ -1,12 +1,15 @@
 "use strict";
 
 const child_process = require("child_process");
+const path = require("path");
+const readline = require("readline");
 
 function NewEngine() {
 
 	let eng = Object.create(null);
 
 	eng.exe = null;
+	eng.name = "??";
 	eng.readyok_required = 0;
 	eng.bestmove_required = 0;
 	eng.scanner = null;
@@ -38,6 +41,8 @@ function NewEngine() {
 		} catch (err) {
 			// Log("(failed) --> " + msg);
 		}
+
+		return msg;
 	};
 
 	eng.setoption = function(name, value) {
@@ -57,6 +62,8 @@ function NewEngine() {
 
 		this.readyok_required = 0;
 		this.bestmove_required = 0;
+
+		this.name = path.basename(filepath);		// Temporary until (hopefully) we receive an id name UCI reply.
 
 		try {
 			this.exe = child_process.spawn(filepath, args, {cwd: path.dirname(filepath)});
@@ -91,16 +98,23 @@ function NewEngine() {
 			// Firstly, make sure we correct our sync counters...
 			// Do both these things before anything else.
 
-			if (line.includes("uciok")) {
-				this.ever_received_uciok = true;
-			}
-
 			if (line.includes("bestmove") && this.bestmove_required > 0) {
 				this.bestmove_required--;
 			}
 
 			if (line.includes("readyok") && this.readyok_required > 0) {
 				this.readyok_required--;
+			}
+
+			// Startup info...
+
+			if (line.includes("uciok")) {
+				this.ever_received_uciok = true;
+			}
+
+			if (line.startsWith("id name")) {
+				let tokens = line.split(" ").slice(2);
+				this.name = tokens.join(" ");
 			}
 
 			// We want to ignore output that is clearly obsolete...

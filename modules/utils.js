@@ -31,3 +31,29 @@ exports.S = function(x, y) {
 exports.ReplaceAll = function(s, search, replace) {		// Fairly slow.
 	return s.split(search).join(replace);
 }
+
+exports.New2DArray = function(width, height) {
+
+	let ret = [];
+
+	for (let x = 0; x < width; x++) {
+		ret.push([]);
+		for (let y = 0; y < height; y++) {
+			ret[x].push(null);
+		}
+	}
+
+	return ret;
+}
+
+exports.DateString = function(dt) {
+	let y = dt.getFullYear();
+	let m = dt.getMonth() + 1;
+	let d = dt.getDate();
+	let parts = [
+		y.toString(),
+		(m > 9 ? "" : "0") + m.toString(),
+		(d > 9 ? "" : "0") + d.toString(),
+	];
+	return parts.join(".");
+}

@@ -8,7 +8,9 @@
 //		them, or we treat them as illegal.
 
 const utils = require("./utils");
-const Point = require("./point");
+
+const Point = require("./point").Point;
+const sliders = require("./sliders").sliders;
 
 const position_prototype = {
 
@@ -957,7 +959,7 @@ const position_prototype = {
 
 				if (piece !== "K" && piece !== "k") {		// We don't include kings because castling is troublesome.
 
-					for (let slider of movegen_sliders[piece]) {
+					for (let slider of sliders[piece]) {
 
 						// The sliders are lists where, if one move is blocked, every subsequent move in the slider is also
 						// blocked. Note that the test is "blocked / offboard". The test is not "is illegal" - sometimes one
@@ -1344,4 +1346,4 @@ function NewPosition(state = null, active = "w", castling = "", enpassant = null
 	return p;
 }
 
-module.exports = NewPosition;
+exports.NewPosition = NewPosition;
