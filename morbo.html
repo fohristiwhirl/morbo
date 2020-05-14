@@ -10,8 +10,22 @@
 
 <body>
 
-	<table id="boardsquares"></table>
-	<table id="boardpieces"></table>
+	<div class="flexible_column">
+
+		<div class="flexible_row">
+
+			<div>											<!-- the JS sets the tables and canvas to be on top of each other -->
+				<table id="boardsquares"></table>
+				<table id="boardpieces"></table>
+			</div>
+
+			<div class="full_growth">
+				<div id="infobox"></div>
+			</div>
+
+		</div>
+
+	</div>
 
 	<div id="fenbox"></div>
 

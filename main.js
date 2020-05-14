@@ -88,6 +88,17 @@ function menu_build() {
 					type: "separator"
 				},
 				{
+					role: "zoomin",
+					accelerator: "CommandOrControl+="
+				},
+      			{
+      				role: "zoomout",
+      				accelerator: "CommandOrControl+-"
+      			},
+      			{
+					type: "separator"
+				},
+				{
 					role: "quit",
 					label: "Quit",
 					accelerator: "CommandOrControl+Q"

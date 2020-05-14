@@ -1,14 +1,13 @@
 "use strict";
 
-const draw = require("./modules/draw");
+const draw_board = require("./modules/draw_board");
 const {ipcRenderer} = require("electron");
 const {NewHub} = require("./modules/hub");
 const path = require("path");
 
 // --------------------------------------------------------------
 
-draw.Init();
-
+draw_board.Init();
 let hub = NewHub();
 
 // --------------------------------------------------------------

@@ -1,5 +1,14 @@
 body {
 	background-color: #080808;
+	border: 0;
+	color: #eeeeee;
+	cursor: default;
+	height: calc(100% - 32px);
+	margin: 16px;
+	overflow: hidden;
+	padding: 0;
+	pointer-events: none;		/* These must be overriden for things that need pointer / select */
+	user-select: none;			/* These must be overriden for things that need pointer / select */
 }
 
 #boardsquares {
@@ -15,6 +24,16 @@ body {
 	position: fixed;
 	table-layout: fixed;
 	z-index: 3;
+}
+
+#infobox {
+	color: #cccccc;
+	font-family: monospace, monospace;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding-right: 10px;
+	pointer-events: auto;
+	white-space: pre-wrap;
 }
 
 #fenbox {
@@ -33,3 +52,20 @@ td {
 	margin: 0;
 	padding: 0;
 }
+
+.flexible_column {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.flexible_row {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+
+.full_growth {
+	flex-grow: 100;			/* The actual number only matters if compared to other flex-grow havers */
+}
+
