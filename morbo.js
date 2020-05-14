@@ -2,14 +2,16 @@
 
 const draw = require("./modules/draw");
 const ipcRenderer = require("electron").ipcRenderer;
-const images = require("./modules/images");
+const NewHub = require("./modules/hub").NewHub;
 const path = require("path");
 
-images.load_from(path.join(__dirname, "pieces"));
+// --------------------------------------------------------------
 
 draw.Init();
 
-let hub = require("./modules/hub").NewHub();
+let hub = NewHub();
+
+// --------------------------------------------------------------
 
 ipcRenderer.on("call", (event, msg) => {
 

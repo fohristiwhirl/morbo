@@ -72,6 +72,8 @@ function NewHub() {
 		this.engine_b.send("ucinewgame");
 
 		this.node = NewRoot();
+		this.draw();
+		
 		this.getmove();
 	};
 
@@ -112,6 +114,7 @@ function NewHub() {
 		}
 
 		this.node = this.node.make_move(s);
+		this.draw();
 		return true;
 	};
 
@@ -180,7 +183,7 @@ function NewHub() {
 	};
 
 	hub.draw = function() {
-		DrawBoard();
+		DrawBoard(this.node.board);
 	};
 
 	return hub;

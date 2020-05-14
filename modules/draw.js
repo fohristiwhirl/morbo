@@ -12,9 +12,11 @@ let square_size = Math.floor(boardsize / 8);
 boardsize = square_size * 8;
 
 function Init() {
+
+	images.load_from(path.join(__dirname, "../pieces"));
+
 	boardpieces.width = boardsquares.width = boardsize;
 	boardpieces.height = boardsquares.height = boardsize;
-
 	boardpieces.style.left = boardsquares.offsetLeft.toString() + "px";
 	boardpieces.style.top = boardsquares.offsetTop.toString() + "px";
 
@@ -41,10 +43,29 @@ function Init() {
 	}
 }
 
-function DrawBoard() {
+function DrawBoard(board) {
+
 	if (images.loads !== 12) {
 		return;
 	}
+
+	for (let x = 0; x < 8; x++) {
+
+		for (let y = 0; y < 8; y++) {
+
+			let piece_to_draw = board.state[x][y];
+
+			let s = utils.S(x, y);
+			let td = document.getElementById("overlay_" + s);
+
+			if (piece_to_draw === "") {
+				td.style["background-image"] = "none";
+			} else {
+				td.style["background-image"] = images[piece_to_draw].string_for_bg_style;
+				td.style["background-size"] = "contain";
+			}
+		}
+	};
 }
 
 exports.Init = Init;
