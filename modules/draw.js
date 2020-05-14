@@ -66,6 +66,8 @@ function DrawBoard(board) {
 			}
 		}
 	};
+
+	fenbox.innerHTML = board.fen(true);
 }
 
 exports.Init = Init;

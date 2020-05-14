@@ -1,7 +1,7 @@
 "use strict";
 
-const NewPosition = require("./position").NewPosition;
-const Point = require("./point").Point;
+const {Point} = require("./point");
+const {NewPosition} = require("./position");
 const utils = require("./utils");
 
 function LoadFEN(fen) {

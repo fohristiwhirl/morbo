@@ -1,8 +1,8 @@
 "use strict";
 
 const draw = require("./modules/draw");
-const ipcRenderer = require("electron").ipcRenderer;
-const NewHub = require("./modules/hub").NewHub;
+const {ipcRenderer} = require("electron");
+const {NewHub} = require("./modules/hub");
 const path = require("path");
 
 // --------------------------------------------------------------

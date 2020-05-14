@@ -1,6 +1,6 @@
 "use strict";
 
-const LoadFEN = require("./fen").LoadFEN;
+const {LoadFEN} = require("./fen");
 const utils = require("./utils");
 
 let next_node_id = 1;
@@ -37,11 +37,11 @@ function NewRoot(board) {					// Arg is a board (position) object, not a FEN
 
 	let root = NewNode(null, null, board);
 
-	root.tags = Object.create(null);		// Only root gets these. Get overwritten by the PGN loader.
+	root.tags = Object.create(null);		// Only root gets these; may be overwritten later
 	root.tags.Event = "Morbo Match";
 	root.tags.Site = "Earth";
 	root.tags.Date = utils.DateString(new Date());
-	root.tags.Round = "1";
+	root.tags.Round = "0";
 	root.tags.White = "White";
 	root.tags.Black = "Black";
 	root.tags.Result = "*";

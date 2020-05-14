@@ -7,7 +7,7 @@
 //		so we don't. We either convert old-format moves to new-format as soon as we receive
 //		them, or we treat them as illegal.
 
-const Point = require("./point").Point;
+const {Point} = require("./point");
 const sliders = require("./sliders");
 const utils = require("./utils");
 
