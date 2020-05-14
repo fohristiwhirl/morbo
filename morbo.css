@@ -1,3 +1,7 @@
+body {
+	background-color: #080808;
+}
+
 #boardsquares {
 	border-collapse: collapse;
 	margin-bottom: 1em;
@@ -8,8 +12,18 @@
 
 #boardpieces {
 	border-collapse: collapse;
-	pointer-events: auto;
 	position: fixed;
 	table-layout: fixed;
 	z-index: 3;
+}
+
+#fenbox {
+	border: none;
+	caret-color: white;
+	color: #6cccee;
+	display: block;
+	float: bottom;
+	font-family: monospace, monospace;
+	font-size: 100%;
+	width: 100%;
 }

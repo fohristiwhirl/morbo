@@ -1,12 +1,12 @@
 "use strict";
 
-const DrawBoard = require("./draw").DrawBoard;
-const ipcRenderer = require("electron").ipcRenderer;
-const LoadMatchConfig = require("./config").LoadMatchConfig;
-const NewEngine = require("./engine").NewEngine;
-const NewRoot = require("./node").NewRoot;
-const Point = require("./point").Point;
-const SaveMatchConfig = require("./config").SaveMatchConfig;
+const {LoadMatchConfig, SaveMatchConfig} = require("./config");
+const {DrawBoard} = require("./draw");
+const {ipcRenderer} = require("electron");
+const {NewEngine} = require("./engine");
+const {NewRoot} = require("./node");
+const {AppendPGN} = require("./pgn");
+const {Point} = require("./point");
 
 function NewHub() {
 
@@ -82,7 +82,16 @@ function NewHub() {
 	};
 
 	hub.choose_engines = function() {
-		return [0, 1];
+
+		// TODO properly for more than 2 engines.
+
+		let tokens = this.config.engines[0].results.split(" ").filter(z => z !== "");
+
+		if (tokens.length % 2 === 0) {
+			return [0, 1];
+		} else {
+			return [1, 0];
+		}
 	};
 
 	hub.receive = function(engine_colour, engine_object, s) {
@@ -220,6 +229,16 @@ function NewHub() {
 		console.log(this.nice_history().join(" "));
 
 		SaveMatchConfig(this.config_file, this.config);
+
+		let root = this.node.get_root();
+
+		root.tags.White = this.engine_w.name;
+		root.tags.Black = this.engine_b.name;
+		root.tags.Result = result;
+
+		if (this.config.outpgn) {
+			AppendPGN(this.config.outpgn, this.node);
+		}
 
 		this.terminate();
 
