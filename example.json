@@ -38,6 +38,7 @@
 			}
 		}
 	],
+	"book": "TCEC_9_17_edited.pgn",
 	"movetime": 250,
 	"outpgn": "sf_vs_lc0.pgn"
 }
