@@ -80,6 +80,17 @@ const node_prototype = {
 		return node;
 	},
 
+	get_end: function() {
+
+		let node = this;
+
+		while (node.children.length > 0) {
+			node = node.children[0];
+		}
+
+		return node;
+	},
+
 	history: function() {
 
 		let ret = [];
