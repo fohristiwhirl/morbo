@@ -200,7 +200,7 @@ exports.NewHub = function() {
 	hub.adjudicate = function() {
 
 		if (!this.game) {
-			return;
+			return null;
 		}
 
 		let board = this.game.node.board;
@@ -246,7 +246,7 @@ exports.NewHub = function() {
 	hub.move = function(s) {							// Returns false on illegal.
 
 		if (!this.game) {
-			return;
+			return false;
 		}
 
 		let source = Point(s.slice(0, 2));
