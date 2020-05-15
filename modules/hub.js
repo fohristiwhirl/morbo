@@ -87,43 +87,37 @@ exports.NewHub = function() {
 
 		// Find the engine with the fewest games...
 
-		let lowest_game_count = Infinity;
 		let lowest_game_engine_id = null;
-
+		let lowest_game_count = null;
+		
 		for (let i = 0; i < this.config.engines.length; i++) {
+			
 			let e = this.config.engines[i];
+
 			let results = e.results.split(" ").filter(z => z !== "");
-			if (results.length < lowest_game_count) {
-				lowest_game_count = results.length;
+
+			if (lowest_game_engine_id === null || results.length < lowest_game_count) {
 				lowest_game_engine_id = i;
+				lowest_game_count = results.length;
 			}
 		}
 
 		// Find the opponent it's played the least...
 
-		let e = this.config.engines[lowest_game_engine_id];
-
-		let games_counts = new Array(this.config.engines.length).fill(0);
-
-		let results = e.results.split(" ").filter(z => z !== "");
-
-		for (let r of results) {
-			let opp_id = parseInt(r.slice(1));
-			games_counts[opp_id]++;
-		}
-
 		let opponent_id = null;
 		let games_vs_opponent = null;
 
-		for (let i = 0; i < games_counts.length; i++) {
+		for (let i = 0; i < this.config.engines.length; i++) {
 
 			if (i === lowest_game_engine_id) {
 				continue;
 			}
 
-			if (opponent_id === null || games_counts[i] < games_vs_opponent) {
+			let vs_count = this.versus_count(lowest_game_engine_id, i);
+
+			if (opponent_id === null || vs_count < games_vs_opponent) {
 				opponent_id = i;
-				games_vs_opponent = games_counts[i];
+				games_vs_opponent = vs_count;
 			}
 		}
 
@@ -139,7 +133,25 @@ exports.NewHub = function() {
 		} else {
 			return ret.reverse();
 		}
+	};
 
+	hub.versus_count = function(index_a, index_b) {
+
+		let count = 0;
+
+		let e = this.config.engines[index_a];
+
+		let results = e.results.split(" ").filter(z => z !== "");
+
+		for (let result of results) {
+
+			let opp_id = parseInt(result.slice(1));
+			if (opp_id === index_b) {
+				count++;
+			}
+		}
+
+		return count;
 	};
 
 	hub.receive = function(engine_colour, engine_object, s) {
