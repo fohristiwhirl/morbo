@@ -4,6 +4,7 @@ const {LoadFEN} = require("./fen.js");
 const fs = require("fs");
 const {DestroyTree, NewRoot} = require("./node.js");
 const util = require("util");								// This is the Node util, not our utils.js
+const utils = require("./utils");							// And this is ours.
 
 const decoder = new util.TextDecoder("utf8");
 
@@ -89,7 +90,7 @@ function new_pgn_record() {
 	};
 }
 
-function PreParsePGN(buf) {
+exports.PreParsePGN = function(buf) {
 
 	// Returns an array of pgn_record objects which have
 	//		- a tags object
@@ -141,7 +142,7 @@ function PreParsePGN(buf) {
 				value = value.slice(0, -1);
 			}
 
-			games[games.length - 1].tags[key] = SafeString(value);		// Escape evil characters. IMPORTANT!
+			games[games.length - 1].tags[key] = utils.SafeString(value);		// Escape evil characters. IMPORTANT!
 
 		} else {
 
@@ -153,7 +154,7 @@ function PreParsePGN(buf) {
 	return games;
 }
 
-function LoadPGNRecord(o) {				// Can throw, either by itself, or by allowing a throw from LoadFEN to propagate.
+exports.LoadPGNRecord = function(o) {	// Can throw, either by itself, or by allowing a throw from LoadFEN to propagate.
 
 	let startpos;
 
