@@ -1,6 +1,7 @@
 {
 	"engines": [
 		{
+			"name": "Stockfish 10",
 			"path": "C:\\Programs (self-installed)\\Chess Engines\\stockfish.exe",
 			"args": [],
 			"options": {
@@ -16,6 +17,19 @@
 			"args": [],
 			"options": {
 				"WeightsFile": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Lc0 Networks\\63409",
+				"Temperature": 0.5,
+				"TempDecayMoves": 14,
+				"Backend": "cudnn-auto",
+				"MoveOverheadMs": 0,
+				"SyzygyPath": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Syzygy"
+			}
+		},
+		{
+			"name": "Lc0 LD2",
+			"path": "C:\\Programs (self-installed)\\lc0-cudnn git\\lc0.exe",
+			"args": [],
+			"options": {
+				"WeightsFile": "C:\\Users\\Owner\\Documents\\Misc\\Chess\\Lc0 Networks\\LD2",
 				"Temperature": 0.5,
 				"TempDecayMoves": 14,
 				"Backend": "cudnn-auto",

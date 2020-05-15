@@ -8,6 +8,7 @@ const {NewEngine} = require("./engine");
 const {NewRoot} = require("./node");
 const {AppendPGN} = require("./pgn");
 const {Point} = require("./point");
+const utils = require("./utils");
 
 function NewHub() {
 
@@ -30,7 +31,7 @@ function NewHub() {
 
 	hub.start_game = function() {
 
-		if (this.running || !this.config) {
+		if (this.running || !this.config || this.config.engines.length < 2) {
 			return;
 		}
 
@@ -77,7 +78,7 @@ function NewHub() {
 		this.draw_infobox();
 
 		setTimeout(() => {
-			ipcRenderer.send("set_title", `${this.engine_w.name} - ${this.engine_b.name}`);
+			ipcRenderer.send("set_title", `${this.white_config.name} - ${this.black_config.name}`);
 		}, 1000);
 
 		this.getmove();
@@ -85,15 +86,56 @@ function NewHub() {
 
 	hub.choose_engines = function() {
 
-		// TODO properly for more than 2 engines.
+		// Find the engine with the fewest games...
 
-		let tokens = this.config.engines[0].results.split(" ").filter(z => z !== "");
+		let lowest_game_count = Infinity;
+		let lowest_game_engine_id = null;
 
-		if (tokens.length % 2 === 0) {
-			return [0, 1];
-		} else {
-			return [1, 0];
+		for (let i = 0; i < this.config.engines.length; i++) {
+			let e = this.config.engines[i];
+			let results = e.results.split(" ");
+			if (results.length < lowest_game_count) {
+				lowest_game_count = results.length;
+				lowest_game_engine_id = i;
+			}
 		}
+
+		// Find the opponent it's played the least...
+
+		let e = this.config.engines[lowest_game_engine_id];
+
+		let games_counts = new Array(this.config.engines.length).fill(0);
+
+		let results = e.results.split(" ");
+
+		for (let r of results) {
+			let opp_id = parseInt(r.slice(1));
+			games_counts[opp_id]++;
+		}
+
+		let opponent_id = null;
+		let opponent_games = null;
+
+		for (let i = 0; i < games_counts.length; i++) {
+
+			if (i === lowest_game_engine_id) {
+				continue;
+			}
+
+			if (opponent_id === null || games_counts[i] < opponent_games) {
+				opponent_id = i;
+				opponent_games = games_counts[i];
+			}
+		}
+
+		// Choose black and white...
+
+		if (opponent_games % 2 === 0) {
+			return [lowest_game_engine_id, opponent_id];
+		} else {
+			return [opponent_id, lowest_game_engine_id];
+		}
+
 	};
 
 	hub.receive = function(engine_colour, engine_object, s) {
