@@ -9,15 +9,15 @@
 
 const utils = require("./utils");
 
-function Point(a, b) {
+exports.Point = function(a, b) {
 
-	if (Point.xy_lookup === undefined) {
-		Point.xy_lookup = utils.New2DArray(8, 8);
+	if (exports.Point.xy_lookup === undefined) {
+		exports.Point.xy_lookup = utils.New2DArray(8, 8);
 		for (let x = 0; x < 8; x++) {
 			for (let y = 0; y < 8; y++) {
 				let s = utils.S(x, y);
 				let point = Object.freeze({x, y, s});
-				Point.xy_lookup[x][y] = point;
+				exports.Point.xy_lookup[x][y] = point;
 			}
 		}
 	}
@@ -28,7 +28,7 @@ function Point(a, b) {
 		[a, b] = utils.XY(a);			// Possibly [-1, -1] if invalid
 	}
 
-	let col = Point.xy_lookup[a];
+	let col = exports.Point.xy_lookup[a];
 	if (col === undefined) return null;
 
 	let ret = col[b];
@@ -36,5 +36,3 @@ function Point(a, b) {
 
 	return ret;
 }
-
-exports.Point = Point;

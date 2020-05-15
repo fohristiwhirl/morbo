@@ -11,7 +11,7 @@ let dark_square = "#dadada";
 let square_size = Math.floor(boardsize / 8);
 boardsize = square_size * 8;
 
-function Init() {
+exports.Init = function() {
 
 	images.load_from(path.join(__dirname, "../pieces"));
 
@@ -43,7 +43,7 @@ function Init() {
 	}
 }
 
-function DrawBoard(board) {
+exports.DrawBoard = function(board) {
 
 	if (images.loads !== 12) {
 		return;
@@ -69,8 +69,3 @@ function DrawBoard(board) {
 
 	fenbox.innerHTML = board.fen(true);
 }
-
-exports.Init = Init;
-exports.DrawBoard = DrawBoard;
-
-	

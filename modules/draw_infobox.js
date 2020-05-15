@@ -2,7 +2,7 @@
 
 const path = require("path");
 
-function DrawInfobox(config, config_filename, running) {
+exports.DrawInfobox = function(config, config_filename, running) {
 
 	if (!config || !config_filename) {
 		return;
@@ -39,5 +39,3 @@ function DrawInfobox(config, config_filename, running) {
 
 	infobox.innerHTML = s;
 }
-
-exports.DrawInfobox = DrawInfobox;

@@ -285,7 +285,7 @@ function LoadPGNRecord(o) {				// Can throw, either by itself, or by allowing a 
 
 // -------------------------------------------------------------------------
 
-function AppendPGN(filename, node) {
+exports.AppendPGN = function(filename, node) {
 	let s = make_pgn_string(node);
 	try {
 		let stream = fs.createWriteStream(filename, {flags: "a"});
@@ -424,5 +424,3 @@ function __order_nodes(node, list, skip_self_flag) {
 
 	__order_nodes(main_child, list, true);
 }
-
-exports.AppendPGN = AppendPGN;

@@ -10,7 +10,7 @@ const {AppendPGN} = require("./pgn");
 const {Point} = require("./point");
 const utils = require("./utils");
 
-function NewHub() {
+exports.NewHub = function() {
 
 	let hub = Object.create(null);
 
@@ -344,7 +344,3 @@ function NewHub() {
 
 	return hub;
 }
-
-
-
-exports.NewHub = NewHub;

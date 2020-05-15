@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 
-function LoadMatchConfig(filename) {
+exports.LoadMatchConfig = function(filename) {
 
 	let config = JSON.parse(fs.readFileSync(filename, "utf8"));		// Can throw
 
@@ -36,13 +36,10 @@ function LoadMatchConfig(filename) {
 	return config;
 }
 
-function SaveMatchConfig(filename, config) {
+exports.SaveMatchConfig = function(filename, config) {
 	try {
 		fs.writeFileSync(filename, JSON.stringify(config, null, "\t"));
 	} catch (err) {
 		console.log(err.toString());
 	}
 }
-
-exports.LoadMatchConfig = LoadMatchConfig;
-exports.SaveMatchConfig = SaveMatchConfig;

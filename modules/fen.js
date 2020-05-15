@@ -4,7 +4,7 @@ const {Point} = require("./point");
 const {NewPosition} = require("./position");
 const utils = require("./utils");
 
-function LoadFEN(fen) {
+exports.LoadFEN = function(fen) {
 
 	let ret = NewPosition();
 
@@ -276,7 +276,3 @@ function is_normal_chess_position(board) {
 
 	return true;
 }
-
-
-
-exports.LoadFEN = LoadFEN;

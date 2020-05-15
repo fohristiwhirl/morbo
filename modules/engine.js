@@ -4,7 +4,7 @@ const child_process = require("child_process");
 const path = require("path");
 const readline = require("readline");
 
-function NewEngine() {
+exports.NewEngine = function() {
 
 	let eng = Object.create(null);
 
@@ -156,5 +156,3 @@ function NewEngine() {
 	
 	return eng;
 }
-
-exports.NewEngine = NewEngine;

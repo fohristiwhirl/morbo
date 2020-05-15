@@ -5,7 +5,7 @@ const utils = require("./utils");
 
 let next_node_id = 1;
 
-function NewNode(parent, move, board) {		// move must be legal; board is only relevant for root nodes
+exports.NewNode = function(parent, move, board) {		// move must be legal; board is only relevant for root nodes
 
 	let node = Object.create(node_prototype);
 	node.id = next_node_id++;
@@ -29,13 +29,13 @@ function NewNode(parent, move, board) {		// move must be legal; board is only re
 	return node;
 }
 
-function NewRoot(board) {					// Arg is a board (position) object, not a FEN
+exports.NewRoot = function(board) {						// Arg is a board (position) object, not a FEN
 	
 	if (!board) {
 		board = LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	}
 
-	let root = NewNode(null, null, board);
+	let root = exports.NewNode(null, null, board);
 
 	root.tags = Object.create(null);		// Only root gets these; may be overwritten later
 	root.tags.Event = "Morbo Match";
@@ -63,7 +63,7 @@ const node_prototype = {
 			}
 		}
 
-		let new_node = NewNode(this, s);
+		let new_node = exports.NewNode(this, s);
 		this.children.push(new_node);
 
 		return new_node;
@@ -199,7 +199,7 @@ const node_prototype = {
 // in general I don't know, but we also take this opportunity to
 // clear nodes from the live_list.
 
-function DestroyTree(node) {
+exports.DestroyTree = function(node) {
 	__destroy_tree(node.get_root());
 }
 
@@ -232,9 +232,3 @@ function __destroy_tree(node) {
 		__destroy_tree(child);
 	}
 }
-
-
-
-exports.NewNode = NewNode;
-exports.NewRoot = NewRoot;
-exports.DestroyTree = DestroyTree;
