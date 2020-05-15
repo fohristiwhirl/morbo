@@ -38,30 +38,17 @@ exports.NewHub = function() {
 
 		let game = this.game;
 
-		game.engine_w.setup(
-			game.white_config.path,
-			game.white_config.args,
-			this.receive.bind(this, "w", game.engine_w),
-			() => {},
-		);
-
-		game.engine_b.setup(
-			game.black_config.path,
-			game.black_config.args,
-			this.receive.bind(this, "b", game.engine_b),
-			() => {},
-		);
+		game.engine_w.setup(game.white_config.path, game.white_config.args, this.receive.bind(this, "w", game.engine_w), () => {});
+		game.engine_b.setup(game.black_config.path, game.black_config.args, this.receive.bind(this, "b", game.engine_b), () => {});
 
 		game.engine_w.send("uci");
 		game.engine_b.send("uci");
-
 		game.engine_w.setoption("UCI_Chess960", true);
 		game.engine_b.setoption("UCI_Chess960", true);
 
 		for (let [key, value] of Object.entries(game.white_config.options)) {
 			game.engine_w.setoption(key, value);
 		}
-
 		for (let [key, value] of Object.entries(game.black_config.options)) {
 			game.engine_b.setoption(key, value);
 		}
@@ -91,7 +78,7 @@ exports.NewHub = function() {
 		let lowest_game_count = null;
 		
 		for (let i = 0; i < this.config.engines.length; i++) {
-			
+
 			let e = this.config.engines[i];
 
 			let results = e.results.split(" ").filter(z => z !== "");
