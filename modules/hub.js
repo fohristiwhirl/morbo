@@ -384,7 +384,7 @@ exports.NewHub = function() {
 		}
 
 		this.terminate();
-		this.start_game();
+		this.draw_infobox();
 	};
 
 	hub.draw_board = function() {
@@ -395,6 +395,16 @@ exports.NewHub = function() {
 
 	hub.draw_infobox = function() {
 		DrawInfobox(this.config, this.config_file, this.game !== null);
+	};
+
+	hub.reset_match_scores = function() {
+		this.terminate();
+		if (this.config) {
+			for (let e of this.config.engines) {
+				e.results = "";
+			}
+		}
+		this.draw_infobox();
 	};
 
 	return hub;

@@ -168,7 +168,16 @@ function menu_build() {
 					click: () => {
 						win.webContents.send("call", "start_game");
 					}
-				}
+				},
+				{
+					type: "separator"
+				},
+				{
+					label: "Reset match scores",
+					click: () => {
+						win.webContents.send("call", "reset_match_scores");
+					}
+				},
 			]
 		}
 	];
