@@ -14,10 +14,6 @@ exports.NewHub = function() {
 
 	let hub = Object.create(null);
 
-	hub.node = NewRoot();
-
-	// These things should all be false/null, or all be valid at once...
-
 	hub.game = null;
 	hub.config = null;
 	hub.config_file = null;
