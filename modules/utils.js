@@ -74,3 +74,15 @@ exports.NumbersBetween = function(a, b) {
 
 	return ret;
 }
+
+exports.SafeString = function(s) {
+	if (typeof s !== "string") {
+		return undefined;
+	}
+	s = exports.ReplaceAll(s, "&", "&amp;");			// This needs to be first of course.
+	s = exports.ReplaceAll(s, "<", "&lt;");
+	s = exports.ReplaceAll(s, ">", "&gt;");
+	s = exports.ReplaceAll(s, "'", "&apos;");
+	s = exports.ReplaceAll(s, "\"", "&quot;");
+	return s;
+}
