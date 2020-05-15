@@ -93,7 +93,7 @@ function NewHub() {
 
 		for (let i = 0; i < this.config.engines.length; i++) {
 			let e = this.config.engines[i];
-			let results = e.results.split(" ");
+			let results = e.results.split(" ").filter(z => z !== "");
 			if (results.length < lowest_game_count) {
 				lowest_game_count = results.length;
 				lowest_game_engine_id = i;
@@ -106,7 +106,7 @@ function NewHub() {
 
 		let games_counts = new Array(this.config.engines.length).fill(0);
 
-		let results = e.results.split(" ");
+		let results = e.results.split(" ").filter(z => z !== "");
 
 		for (let r of results) {
 			let opp_id = parseInt(r.slice(1));
@@ -152,7 +152,7 @@ function NewHub() {
 				return;
 			}
 
-			let tokens = s.split(" ").filter(z => s !== "");
+			let tokens = s.split(" ").filter(z => z !== "");
 
 			let ok = this.move(tokens[1]);
 

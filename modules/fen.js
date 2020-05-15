@@ -12,7 +12,7 @@ function LoadFEN(fen) {
 	fen = utils.ReplaceAll(fen, "\n", " ");
 	fen = utils.ReplaceAll(fen, "\r", " ");
 
-	let tokens = fen.split(" ").filter(s => s !== "");
+	let tokens = fen.split(" ").filter(z => z !== "");
 
 	if (tokens.length === 1) tokens.push("w");
 	if (tokens.length === 2) tokens.push("-");
