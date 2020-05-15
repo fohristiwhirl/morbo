@@ -128,12 +128,17 @@ function NewHub() {
 			}
 		}
 
+		// Put the lowest ID first to make it easy to be sure we're choosing black / white correctly...
+
+		let ret = [lowest_game_engine_id, opponent_id]
+		ret.sort();
+
 		// Choose black and white...
 
 		if (opponent_games % 2 === 0) {
-			return [lowest_game_engine_id, opponent_id];
+			return ret;
 		} else {
-			return [opponent_id, lowest_game_engine_id];
+			return ret.reverse();
 		}
 
 	};
