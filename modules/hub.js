@@ -5,8 +5,9 @@ const {DrawBoard} = require("./draw_board");
 const {DrawInfobox} = require("./draw_infobox");
 const {ipcRenderer} = require("electron");
 const {NewEngine} = require("./engine");
+const fs = require("fs");
 const {NewRoot} = require("./node");
-const {AppendPGN} = require("./pgn");
+const {AppendPGN, PreParsePGN, LoadPGNRecord} = require("./pgn");
 const {Point} = require("./point");
 const utils = require("./utils");
 
@@ -15,6 +16,7 @@ exports.NewHub = function() {
 	let hub = Object.create(null);
 
 	hub.game = null;
+	hub.book = null;
 	hub.config = null;
 	hub.config_file = null;
 
@@ -33,7 +35,7 @@ exports.NewHub = function() {
 			black_id: black_id,
 			white_config: this.config.engines[white_id],
 			black_config: this.config.engines[black_id],
-			node: NewRoot(),
+			node: NewRoot(),		// Maybe replaced in a moment.
 		}
 
 		let game = this.game;
@@ -56,9 +58,6 @@ exports.NewHub = function() {
 		game.engine_w.send("ucinewgame");
 		game.engine_b.send("ucinewgame");
 
-		this.draw_board();
-		this.draw_infobox();
-
 		setTimeout(() => {
 			try {
 				ipcRenderer.send("set_title", `${game.white_config.name} - ${game.black_config.name}`);
@@ -66,6 +65,19 @@ exports.NewHub = function() {
 				// pass
 			}
 		}, 1000);
+
+		if (this.book) {
+			let index = Math.floor(this.versus_count(game.white_id, game.black_id) / 2);
+			index %= this.book.length;
+			try {
+				this.game.node = LoadPGNRecord(this.book[index]).get_end();
+			} catch (err) {
+				alert("While loading game from book: " + err.toString());
+			}
+		}
+
+		this.draw_board();
+		this.draw_infobox();
 
 		this.getmove();
 	};
@@ -327,6 +339,8 @@ exports.NewHub = function() {
 
 	hub.terminate = function() {
 
+		// Stops the game but doesn't affect the match state or loaded config.
+
 		if (!this.game) {
 			return;
 		}
@@ -340,14 +354,34 @@ exports.NewHub = function() {
 
 	hub.load_match = function(filename) {
 
-		try {
-			this.config = LoadMatchConfig(filename);
-		} catch (err) {
-			alert(err);
-			return;
-		}
+		// We might need to restore these things on failure...
 
-		this.config_file = filename;
+		let old_config = this.config;
+		let old_config_file = this.config_file;
+		let old_book = this.book;
+
+		try {
+
+			this.config = LoadMatchConfig(filename);
+
+			if (this.config.book) {
+				let buf = fs.readFileSync(this.config.book);
+				this.book = PreParsePGN(buf);
+			} else {
+				this.book = null;
+			}
+
+			this.config_file = filename;
+
+		} catch (err) {
+
+			alert("While loading match file: " + err.toString());
+			this.config = old_config;
+			this.config_file = old_config_file;
+			this.book = old_book;
+			return;
+
+		}
 
 		this.terminate();
 		this.start_game();
