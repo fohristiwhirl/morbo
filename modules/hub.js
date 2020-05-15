@@ -18,67 +18,70 @@ exports.NewHub = function() {
 
 	// These things should all be false/null, or all be valid at once...
 
-	hub.engine_w = null;
-	hub.engine_b = null;
-	hub.white_id = null;
-	hub.black_id = null;
-	hub.white_config = null;
-	hub.black_config = null;
-	hub.running = false;
-
+	hub.game = null;
 	hub.config = null;
 	hub.config_file = null;
 
 	hub.start_game = function() {
 
-		if (this.running || !this.config || this.config.engines.length < 2) {
+		if (this.game || !this.config || this.config.engines.length < 2) {
 			return;
 		}
 
-		this.engine_w = NewEngine();
-		this.engine_b = NewEngine();
-		[this.white_id, this.black_id] = this.choose_engines();
-		this.white_config = this.config.engines[this.white_id];
-		this.black_config = this.config.engines[this.black_id];
-		this.running = true;
+		let [white_id, black_id] = this.choose_engines();
 
-		this.engine_w.setup(
-			this.white_config.path,
-			this.white_config.args,
-			this.receive.bind(this, "w", this.engine_w),
+		this.game = {
+			engine_w: NewEngine(),
+			engine_b: NewEngine(),
+			white_id: white_id,
+			black_id: black_id,
+			white_config: this.config.engines[white_id],
+			black_config: this.config.engines[black_id],
+			node: NewRoot(),
+		}
+
+		let game = this.game;
+
+		game.engine_w.setup(
+			game.white_config.path,
+			game.white_config.args,
+			this.receive.bind(this, "w", game.engine_w),
 			() => {},
 		);
 
-		this.engine_b.setup(
-			this.black_config.path,
-			this.black_config.args,
-			this.receive.bind(this, "b", this.engine_b),
+		game.engine_b.setup(
+			game.black_config.path,
+			game.black_config.args,
+			this.receive.bind(this, "b", game.engine_b),
 			() => {},
 		);
 
-		this.engine_w.send("uci");
-		this.engine_b.send("uci");
+		game.engine_w.send("uci");
+		game.engine_b.send("uci");
 
-		this.engine_w.setoption("UCI_Chess960", true);
-		this.engine_b.setoption("UCI_Chess960", true);
+		game.engine_w.setoption("UCI_Chess960", true);
+		game.engine_b.setoption("UCI_Chess960", true);
 
-		for (let [key, value] of Object.entries(this.white_config.options)) {
-			this.engine_w.setoption(key, value);
+		for (let [key, value] of Object.entries(game.white_config.options)) {
+			game.engine_w.setoption(key, value);
 		}
 
-		for (let [key, value] of Object.entries(this.black_config.options)) {
-			this.engine_b.setoption(key, value);
+		for (let [key, value] of Object.entries(game.black_config.options)) {
+			game.engine_b.setoption(key, value);
 		}
 
-		this.engine_w.send("ucinewgame");
-		this.engine_b.send("ucinewgame");
+		game.engine_w.send("ucinewgame");
+		game.engine_b.send("ucinewgame");
 
-		this.node = NewRoot();
 		this.draw_board();
 		this.draw_infobox();
 
 		setTimeout(() => {
-			ipcRenderer.send("set_title", `${this.white_config.name} - ${this.black_config.name}`);
+			try {
+				ipcRenderer.send("set_title", `${game.white_config.name} - ${game.black_config.name}`);
+			} catch (err) {
+				// pass
+			}
 		}, 1000);
 
 		this.getmove();
@@ -145,14 +148,26 @@ exports.NewHub = function() {
 
 	hub.receive = function(engine_colour, engine_object, s) {
 
-		if ((engine_colour === "w" && engine_object !== this.engine_w) || (engine_colour === "b" && engine_object !== this.engine_b)) {
+		if (!this.game) {
+			engine_object.shutdown();
+			return;
+		}
+
+		let game = this.game;
+
+		if (engine_colour === "w" && engine_object !== game.engine_w) {
+			engine_object.shutdown();
+			return;
+		}
+
+		if (engine_colour === "b" && engine_object !== game.engine_b) {
 			engine_object.shutdown();
 			return;
 		}
 
 		if (s.startsWith("bestmove")) {
 
-			if (this.node.board.active !== engine_colour) {
+			if (game.node.board.active !== engine_colour) {
 				this.forfeit(engine_colour, "bestmove out of turn");
 				return;
 			}
@@ -172,7 +187,9 @@ exports.NewHub = function() {
 
 	hub.progress_game = function() {
 
-		let board = this.node.board;
+		if (!this.game) {
+			return;
+		}
 
 		let result = this.adjudicate();
 
@@ -186,9 +203,11 @@ exports.NewHub = function() {
 
 	hub.adjudicate = function() {
 
-		// TODO: update match stats etc.
+		if (!this.game) {
+			return;
+		}
 
-		let board = this.node.board;
+		let board = this.game.node.board;
 
 		if (board.no_moves()) {
 			if (board.king_in_check()) {
@@ -203,7 +222,7 @@ exports.NewHub = function() {
 		if (board.halfmove >= 100) {
 			return "1/2-1/2";
 		}
-		if (this.node.is_triple_rep()) {
+		if (this.game.node.is_triple_rep()) {
 			return "1/2-1/2";
 		}
 
@@ -212,17 +231,27 @@ exports.NewHub = function() {
 
 	hub.getmove = function() {
 
-		let engine = this.node.board.active === "w" ? this.engine_w : this.engine_b;
+		if (!this.game) {
+			return;
+		}
 
-		let root_fen = this.node.get_root().board.fen(false);
+		let game = this.game;
+
+		let engine = game.node.board.active === "w" ? game.engine_w : game.engine_b;
+
+		let root_fen = game.node.get_root().board.fen(false);
 		let setup = `fen ${root_fen}`;
 
-		engine.send(`position ${setup} moves ${this.node.history().join(" ")}`);
+		engine.send(`position ${setup} moves ${game.node.history().join(" ")}`);
 		engine.send("isready");
 		engine.send(`go movetime ${this.config.movetime}`);
 	};
 
 	hub.move = function(s) {							// Returns false on illegal.
+
+		if (!this.game) {
+			return;
+		}
 
 		let source = Point(s.slice(0, 2));
 
@@ -232,7 +261,7 @@ exports.NewHub = function() {
 
 		// Convert old-school castling notation to Chess960 format...
 
-		let board = this.node.board;
+		let board = this.game.node.board;
 		s = board.c960_castling_converter(s);
 
 		// The promised legality check...
@@ -242,7 +271,7 @@ exports.NewHub = function() {
 			return false;
 		}
 
-		this.node = this.node.make_move(s);
+		this.game.node = this.game.node.make_move(s);
 		this.draw_board();
 		return true;
 	};
@@ -256,44 +285,44 @@ exports.NewHub = function() {
 
 	hub.finish_game = function(result) {		// TODO - accept a comment parameter
 
-		if (!this.running) {		// Required because the user can call this at odd times.
+		if (!this.game) {		// Required because the user can call this at odd times.
 			return;
 		}
 
-		if (this.white_config.results !== "") this.white_config.results += " ";
-		if (this.black_config.results !== "") this.black_config.results += " ";
+		if (this.game.white_config.results !== "") this.game.white_config.results += " ";
+		if (this.game.black_config.results !== "") this.game.black_config.results += " ";
 
 		if (result === "1-0") {
-			this.white_config.results += `+${this.black_id}`;
-			this.black_config.results += `-${this.white_id}`;
+			this.game.white_config.results += `+${this.game.black_id}`;
+			this.game.black_config.results += `-${this.game.white_id}`;
 		} else if (result === "1/2-1/2") {
-			this.white_config.results += `=${this.black_id}`;
-			this.black_config.results += `=${this.white_id}`;
+			this.game.white_config.results += `=${this.game.black_id}`;
+			this.game.black_config.results += `=${this.game.white_id}`;
 		} else if (result === "0-1") {
-			this.white_config.results += `-${this.black_id}`;
-			this.black_config.results += `+${this.white_id}`;
+			this.game.white_config.results += `-${this.game.black_id}`;
+			this.game.black_config.results += `+${this.game.white_id}`;
 		}
 
 		SaveMatchConfig(this.config_file, this.config);
 
-		let root = this.node.get_root();
+		let root = this.game.node.get_root();
 
-		if (this.white_config.name) {
-			root.tags.White = this.white_config.name;
+		if (this.game.white_config.name) {
+			root.tags.White = this.game.white_config.name;
 		} else {
-			root.tags.White = this.engine_w.name;
+			root.tags.White = this.game.engine_w.name;
 		}
 
-		if (this.black_config.name) {
-			root.tags.Black = this.black_config.name;
+		if (this.game.black_config.name) {
+			root.tags.Black = this.game.black_config.name;
 		} else {
-			root.tags.Black = this.engine_b.name;
+			root.tags.Black = this.game.engine_b.name;
 		}
 		
 		root.tags.Result = result;
 
 		if (this.config.outpgn) {
-			AppendPGN(this.config.outpgn, this.node);
+			AppendPGN(this.config.outpgn, this.game.node);
 		}
 
 		this.terminate();
@@ -302,15 +331,14 @@ exports.NewHub = function() {
 	};
 
 	hub.terminate = function() {
-		if (this.engine_w) this.engine_w.shutdown();
-		if (this.engine_b) this.engine_b.shutdown();
-		this.engine_w = null;
-		this.engine_b = null;
-		this.white_id = null;
-		this.black_id = null;
-		this.white_config = null;
-		this.black_config = null;
-		this.running = false;
+
+		if (!this.game) {
+			return;
+		}
+
+		this.game.engine_w.shutdown();
+		this.game.engine_b.shutdown();
+		this.game = null;
 
 		this.draw_infobox();
 	};
@@ -331,15 +359,13 @@ exports.NewHub = function() {
 	};
 
 	hub.draw_board = function() {
-		DrawBoard(this.node.board);
+		if (this.game) {
+			DrawBoard(this.game.node.board);
+		}
 	};
 
 	hub.draw_infobox = function() {
-		DrawInfobox(this.config, this.config_file, this.running);
-	};
-
-	hub.nice_history = function() {
-		return this.node.node_history().map(node => node.token()).slice(1);
+		DrawInfobox(this.config, this.config_file, this.game !== null);
 	};
 
 	return hub;
