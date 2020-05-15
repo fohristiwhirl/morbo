@@ -113,7 +113,7 @@ exports.NewHub = function() {
 		}
 
 		let opponent_id = null;
-		let opponent_games = null;
+		let games_vs_opponent = null;
 
 		for (let i = 0; i < games_counts.length; i++) {
 
@@ -121,9 +121,9 @@ exports.NewHub = function() {
 				continue;
 			}
 
-			if (opponent_id === null || games_counts[i] < opponent_games) {
+			if (opponent_id === null || games_counts[i] < games_vs_opponent) {
 				opponent_id = i;
-				opponent_games = games_counts[i];
+				games_vs_opponent = games_counts[i];
 			}
 		}
 
@@ -134,7 +134,7 @@ exports.NewHub = function() {
 
 		// Choose black and white...
 
-		if (opponent_games % 2 === 0) {
+		if (games_vs_opponent % 2 === 0) {
 			return ret;
 		} else {
 			return ret.reverse();
