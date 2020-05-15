@@ -12,8 +12,12 @@ exports.LoadMatchConfig = function(filename) {
 
 	for (let e of config.engines) {
 
+		if (typeof e.name !== "string") {
+			throw "Missing name in engine options";
+		}
+
 		if (typeof e.path !== "string") {
-			throw "Bad path in engine options";			// Unrecoverable
+			throw "Bad path in engine options";
 		}
 
 		if (Array.isArray(e.args) === false) {
